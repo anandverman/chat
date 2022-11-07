@@ -2,7 +2,7 @@
 from chatui import Ui_MainWindow
 from PySide6 import QtWidgets
 from message_labels import send_msgbox,recv_msgbox
-from net_ui_interface import *
+# from net_ui_interface import *
 # import threading
 
 class UI(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -15,31 +15,31 @@ class UI(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ip=None
         self.port=None
 
-        #page 1 widget actions
-        self.submit_button.clicked.connect(self.submit_button_click_handler)
-        self.name_edit.returnPressed.connect(self.username_label.setText(self.name_edit.text()))
-        #page 2 widget actions
-        self.back_button.clicked.connect(self.back_button_click_handler)
-        self.typemessage_edit.returnPressed.connect(self.send_button_click_handler)
-        self.send_button.clicked.connect(self.send_button_click_handler)
+        # #page 1 widget actions
+        # self.submit_button.clicked.connect(self.submit_button_click_handler)
+        # self.name_edit.returnPressed.connect(self.username_label.setText(self.name_edit.text()))
+        # #page 2 widget actions
+        # self.back_button.clicked.connect(self.back_button_click_handler)
+        # self.typemessage_edit.returnPressed.connect(self.send_button_click_handler)
+        # self.send_button.clicked.connect(self.send_button_click_handler)
 
     #Page 1 widget functions
-    def submit_button_click_handler(self):
-        name=self.name_edit.text()
-        self.username_label.setText(name)
+    # def submit_button_click_handler(self):
+    #     name=self.name_edit.text()
+    #     self.username_label.setText(name)
         
-        # if not connect_to_server(addr):
-        #     self.show_error()       
-        #send name(name)
-        self.getserveraddr()
-        if connect_client_socket((self.ip,self.port)):
-            self.result_edit.setText("Connection Successful")
-            self.stackedWidget.setCurrentIndex(1)
-            recvthread=threading.Thread(target=self.getmsg)
-            recvthread.start()
-        else:
-            self.result_edit.setText("Connection Failed.")
-        self.username_label.setText(f"{name} on {self.ip}")
+    #     # if not connect_to_server(addr):
+    #     #     self.show_error()       
+    #     #send name(name)
+    #     self.getserveraddr()
+    #     if connect_client_socket((self.ip,self.port)):
+    #         self.result_edit.setText("Connection Successful")
+    #         self.stackedWidget.setCurrentIndex(1)
+    #         recvthread=threading.Thread(target=self.getmsg)
+    #         recvthread.start()
+    #     else:
+    #         self.result_edit.setText("Connection Failed.")
+    #     self.username_label.setText(f"{name} on {self.ip}")
 
     def getserveraddr(self):
         addr=self.serveraddr_edit.text().split(':')
@@ -62,10 +62,10 @@ class UI(QtWidgets.QMainWindow, Ui_MainWindow):
        widget.deleteLater() # lets Qt knows it needs to delete this widget from the GUI
        del widget
 
-    def back_button_click_handler(self):
-        self.clrmessages()
-        disconnect()
-        self.stackedWidget.setCurrentIndex(0)
+    # def back_button_click_handler(self):
+    #     self.clrmessages()
+    #     disconnect()
+    #     self.stackedWidget.setCurrentIndex(0)
     
     def clrmessages(self):
         for msg_box in self.sendmsgList:
@@ -74,27 +74,27 @@ class UI(QtWidgets.QMainWindow, Ui_MainWindow):
             self.widget_delete(msg_box.recvmsg_label)
         self.sendmsgList=[]
 
-    def send_button_click_handler(self):        ###
-        msg=self.typemessage_edit.text()
-        if msg=="" or msg.isspace():
-            return
-        send_to_server(msg)
-        self.typemessage_edit.setText("")
-        self.display_sendmsg(msg)
-
-    # def received_msg_handler(self):             ###
+    # def send_button_click_handler(self):        ###
     #     msg=self.typemessage_edit.text()
     #     if msg=="" or msg.isspace():
     #         return
+    #     send_to_server(msg)
     #     self.typemessage_edit.setText("")
-    #     self.display_recvmsg(msg)
+    #     self.display_sendmsg(msg)
 
-    def getmsg(self):                   ##Network dependent function
-        while True:
-            msg=return_msg()
-            if msg=="":
-                continue
-            self.display_recvmsg(msg)
+    def received_msg_handler(self):             ###
+        msg=self.typemessage_edit.text()
+        if msg=="" or msg.isspace():
+            return
+        self.typemessage_edit.setText("")
+        self.display_recvmsg(msg)
+
+    # def getmsg(self):                   ##Network dependent function
+    #     while True:
+    #         msg=return_msg()
+    #         if msg=="":
+    #             continue
+    #         self.display_recvmsg(msg)
 
     def display_sendmsg(self, msg):
         self.sendmsgList.append(send_msgbox(self.scrollAreaWidgetContents))
