@@ -1,11 +1,12 @@
 import socket
 import threading
 
-client=None
+client : socket.socket
 ADDR=None
 # msg=None
 recvQ=[]
 recvQLock=threading.Lock()
+connected=False
 # msglock=threading.Lock()
 
 # def init_client_socket(client):
@@ -31,17 +32,19 @@ def connect_client_socket(address):
     global client
     # global msg
     global recvQ
-    msg="hello"
+    global connected
     recvQ=[]
-    client=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client=socket.socket(socket.AF_INET, socket.SOCK_STREAM,)
     try:
         client.connect(address)
-        t1=threading.Thread(target=communicate)
+        connected=True
+        # client.send(bytes(name,'utf-8'))
+        t1=threading.Thread(target=communicate, daemon=True)
         t1.start()
         # print(f"{client.family()}")
         return True
-    except:
-        print("Connection to server failed.")
+    except Exception as e:
+        print(f"Connection to server failed because {e}")
         return False
     
 def send_to_server(msg):
@@ -53,9 +56,12 @@ def send_to_server(msg):
 def communicate():
     # global msg
     global client
-    while True:
-        if not client:
-            return
+    global connected
+    
+    while connected:
+        # if :
+        #     print("Exiting communicate")
+        #     return
         # msglock.acquire()
         msg=bytes.decode(client.recv(2000))   #if no message is received it is empty string
         # msglock.release()
@@ -68,8 +74,11 @@ def communicate():
 
 def disconnect():
     global client
-    if not client:
-        return
-    # client.send(bytes("", 'utf-8'))
+    global connected
+    # if not client:
+    #     return
+    client.send(bytes("", 'utf-8'))
+    connected=False
+    client.shutdown(socket.SHUT_RDWR)
     client.close()
     print("Disconnected")

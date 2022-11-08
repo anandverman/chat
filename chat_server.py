@@ -39,9 +39,6 @@ def communicate(conn, addr):
     conn.send(bytes(f"Welcome to chat!",'utf-8'))
     msg="a"
     while len(msg):
-        # if not conn:
-        #     print("Bye")
-        #     break
         try:
             msg=bytes.decode(conn.recv(2000))
             if(msg):
@@ -68,7 +65,7 @@ if __name__=='__main__':
     SERVERADDR=(socket.gethostname(), 2002)
     server=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(SERVERADDR)
-    server.listen(1)
+    server.listen(12)
     print(f"Socket is Listening at {SERVERADDR}")
     signal.signal(signal.SIGINT, signal_handler)
     t2=threading.Thread(target=clearQ, daemon=True)

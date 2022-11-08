@@ -49,7 +49,7 @@ class UI(QtWidgets.QMainWindow, Ui_MainWindow):
             self.result_edit.setText("Connection Successful")
             self.stackedWidget.setCurrentIndex(1)
             self.disconnectedFlag=False
-            self.recvthread=threading.Thread(target=self.getmsg)
+            self.recvthread=threading.Thread(target=self.getmsg, daemon=True)
             self.recvthread.start()
         else:
             self.result_edit.setText("Connection Failed.")
@@ -113,6 +113,7 @@ class UI(QtWidgets.QMainWindow, Ui_MainWindow):
             self.recvQLock.release()
             self.signal_recv_msg.emit()
             print(f"recv in getmsg: {temp}")
+        print("thead exiting")
     
     # def get(self,message):
     #     self.display_recvmsg(msg)
@@ -125,6 +126,7 @@ class UI(QtWidgets.QMainWindow, Ui_MainWindow):
         print(f"send: {msg}")
 
     def display_recvmsg(self):
+        
         #global recvQ
         while self.recvQ !=[]:
             self.recvmsgList.append(recv_msgbox(self.scrollAreaWidgetContents))
