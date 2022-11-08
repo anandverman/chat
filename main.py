@@ -2,7 +2,6 @@
 
 from uifunction import UI
 from PySide6 import QtWidgets
-from chatClass import chatApp
 
 import socket
 import sys

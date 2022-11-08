@@ -7,6 +7,7 @@ import signal, sys
 
 msgQlock=threading.Lock()
 clients={}
+client_name={}
 msgQ=[]
 
 server=None
@@ -42,8 +43,8 @@ def communicate(conn, addr):
         try:
             msg=bytes.decode(conn.recv(2000))
             if(msg):
-                print(f"{addr} sent: {msg}")
-                br_msg=f"<{addr}>: {msg}"
+                print(f"{client_name[addr]} sent: {msg}")
+                br_msg=f"{client_name[addr]}: {msg}"
                 fillQ(br_msg, addr)
                 # broadcast(br_msg, addr) 
         except:
@@ -56,7 +57,7 @@ def signal_handler(sig, frame):
     print('\nYou pressed Ctrl+C!\nClosing Server Socket')
     global server
     for _,conn in clients.items():
-        conn.close()
+        conn[1].close()
     server.close()
     sys.exit(0)
 
@@ -72,7 +73,8 @@ if __name__=='__main__':
     t2.start()
     while True:
         conn, addr= server.accept()
-        clients[addr]=conn
+        client_name[addr]=bytes.decode(conn.recv(2000))
+        clients[addr]=conn      
         print(f"Connected to {addr}")
         t1=threading.Thread(target=communicate, args=(conn, addr ), daemon=True)
         t1.start()

@@ -28,7 +28,7 @@ def return_msg():
     return msg
 
 
-def connect_client_socket(address):
+def connect_client_socket(address, name):
     global client
     # global msg
     global recvQ
@@ -38,7 +38,7 @@ def connect_client_socket(address):
     try:
         client.connect(address)
         connected=True
-        # client.send(bytes(name,'utf-8'))
+        client.send(bytes(name,'utf-8'))
         t1=threading.Thread(target=communicate, daemon=True)
         t1.start()
         # print(f"{client.family()}")

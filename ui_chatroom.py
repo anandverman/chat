@@ -200,7 +200,13 @@ class Ui_MainWindow(object):
         font2 = QFont()
         font2.setFamilies([u"codicon"])
         self.back_button.setFont(font2)
-        icon1 = QIcon(QIcon.fromTheme(u"go-previous"))
+        icon1 = QIcon()
+        iconThemeName = u"go-previous"
+        if QIcon.hasThemeIcon(iconThemeName):
+            icon1 = QIcon.fromTheme(iconThemeName)
+        else:
+            icon1.addFile(u".", QSize(), QIcon.Normal, QIcon.Off)
+        
         self.back_button.setIcon(icon1)
 
         self.gridLayout_8.addWidget(self.back_button, 0, 0, 1, 1)
@@ -224,37 +230,18 @@ class Ui_MainWindow(object):
         sizePolicy5.setHeightForWidth(self.scrollArea.sizePolicy().hasHeightForWidth())
         self.scrollArea.setSizePolicy(sizePolicy5)
         self.scrollArea.setFrameShape(QFrame.Box)
+        self.scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 758, 539))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 741, 539))
         self.gridLayout_10 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_10.setObjectName(u"gridLayout_10")
-        self.sendmsg_label = QLabel(self.scrollAreaWidgetContents)
-        self.sendmsg_label.setObjectName(u"sendmsg_label")
-        sizePolicy6 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.MinimumExpanding)
-        sizePolicy6.setHorizontalStretch(0)
-        sizePolicy6.setVerticalStretch(0)
-        sizePolicy6.setHeightForWidth(self.sendmsg_label.sizePolicy().hasHeightForWidth())
-        self.sendmsg_label.setSizePolicy(sizePolicy6)
-        self.sendmsg_label.setMinimumSize(QSize(0, 100))
-        self.sendmsg_label.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-        self.sendmsg_label.setWordWrap(True)
-        self.sendmsg_label.setMargin(6)
+        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
-        self.gridLayout_10.addWidget(self.sendmsg_label, 1, 0, 1, 1)
-
-        self.recvmsg_label = QLabel(self.scrollAreaWidgetContents)
-        self.recvmsg_label.setObjectName(u"recvmsg_label")
-        sizePolicy6.setHeightForWidth(self.recvmsg_label.sizePolicy().hasHeightForWidth())
-        self.recvmsg_label.setSizePolicy(sizePolicy6)
-        self.recvmsg_label.setMinimumSize(QSize(0, 100))
-        self.recvmsg_label.setWordWrap(True)
-        self.recvmsg_label.setMargin(6)
-
-        self.gridLayout_10.addWidget(self.recvmsg_label, 0, 0, 1, 1)
+        self.gridLayout_10.addItem(self.verticalSpacer_2, 0, 0, 1, 1)
 
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
@@ -271,7 +258,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(1)
+        self.stackedWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -292,7 +279,5 @@ class Ui_MainWindow(object):
         self.username_label.setText(QCoreApplication.translate("MainWindow", u"Name", None))
         self.typemessage_edit.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Type Message Here", None))
         self.send_button.setText(QCoreApplication.translate("MainWindow", u"Send", None))
-        self.sendmsg_label.setText(QCoreApplication.translate("MainWindow", u"Your Message", None))
-        self.recvmsg_label.setText(QCoreApplication.translate("MainWindow", u"Sender Message", None))
     # retranslateUi
 

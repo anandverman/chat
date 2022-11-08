@@ -45,7 +45,7 @@ class UI(QtWidgets.QMainWindow, Ui_MainWindow):
         #     self.show_error()       
         #send name(name)
         self.getserveraddr()
-        if connect_client_socket((self.ip,self.port)):
+        if connect_client_socket((self.ip,self.port), name):
             self.result_edit.setText("Connection Successful")
             self.stackedWidget.setCurrentIndex(1)
             self.disconnectedFlag=False
@@ -57,7 +57,6 @@ class UI(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def getserveraddr(self):
         addr=self.serveraddr_edit.text().split(':')
-        addr=('anand-pc','2002')
         self.ip=addr[0]
         try:
             self.port=int(addr[1])
@@ -95,6 +94,7 @@ class UI(QtWidgets.QMainWindow, Ui_MainWindow):
         send_to_server(msg)
         self.typemessage_edit.setText("")
         self.display_sendmsg(msg)
+        self.moveScrollArea()
 
     # def received_msg_handler(self):             ###
     #     msg=self.typemessage_edit.text()
@@ -123,6 +123,7 @@ class UI(QtWidgets.QMainWindow, Ui_MainWindow):
         self.sendmsgList.append(send_msgbox(self.scrollAreaWidgetContents))
         self.sendmsgList[-1].sendmsg_label.setText(msg)
         self.gridLayout_10.addWidget(self.sendmsgList[-1].sendmsg_label)
+        
         print(f"send: {msg}")
 
     def display_recvmsg(self):
@@ -135,7 +136,14 @@ class UI(QtWidgets.QMainWindow, Ui_MainWindow):
             self.recvQ.pop(0)
             self.recvQLock.release()
             self.gridLayout_10.addWidget(self.recvmsgList[-1].recvmsg_label)
+            self.moveScrollArea()
             print(f"recv: {recvQ}")
+
+    def moveScrollArea(self):
+        self.scrollArea.verticalScrollBar().setValue(self.scrollArea.verticalScrollBar().maximum())
+        print(self.scrollArea.verticalScrollBar().maximum())
+        print(self.scrollArea.verticalScrollBar().maximumHeight())
+
 
     ##Network dependent functions
 
