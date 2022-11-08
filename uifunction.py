@@ -1,19 +1,27 @@
 # import sys
 from chatui import Ui_MainWindow
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets,QtCore
 from message_labels import send_msgbox,recv_msgbox
 from net_ui_interface import *
 # import threading
 
+# recvQ=None
 class UI(QtWidgets.QMainWindow, Ui_MainWindow):
+    signal_recv_msg=QtCore.Signal()
+    
     def __init__(self):
         super().__init__()
         self.setupUi(self)
 
         self.sendmsgList=[]
         self.recvmsgList=[]
+        self.recvQ=[]
+        self.recvQLock=threading.Lock()
         self.ip=None
         self.port=None
+        self.recvthread=None
+        self.disconnectedFlag=False
+        
 
         #page 1 widget actions
         self.submit_button.clicked.connect(self.submit_button_click_handler)
@@ -22,6 +30,11 @@ class UI(QtWidgets.QMainWindow, Ui_MainWindow):
         self.back_button.clicked.connect(self.back_button_click_handler)
         self.typemessage_edit.returnPressed.connect(self.send_button_click_handler)
         self.send_button.clicked.connect(self.send_button_click_handler)
+
+        self.signal_recv_msg.connect(lambda:self.display_recvmsg())
+
+
+
 
     #Page 1 widget functions
     def submit_button_click_handler(self):
@@ -35,8 +48,9 @@ class UI(QtWidgets.QMainWindow, Ui_MainWindow):
         if connect_client_socket((self.ip,self.port)):
             self.result_edit.setText("Connection Successful")
             self.stackedWidget.setCurrentIndex(1)
-            recvthread=threading.Thread(target=self.getmsg)
-            recvthread.start()
+            self.disconnectedFlag=False
+            self.recvthread=threading.Thread(target=self.getmsg)
+            self.recvthread.start()
         else:
             self.result_edit.setText("Connection Failed.")
         self.username_label.setText(f"{name} on {self.ip}")
@@ -51,8 +65,6 @@ class UI(QtWidgets.QMainWindow, Ui_MainWindow):
             print("No port")
         print(f"{self.ip}:{self.port}")
 
-    
-
         
     ##Page 2 widget functions
     def widget_delete(self, widget):
@@ -62,9 +74,10 @@ class UI(QtWidgets.QMainWindow, Ui_MainWindow):
        widget.deleteLater() # lets Qt knows it needs to delete this widget from the GUI
        del widget
 
-    def back_button_click_handler(self):
-        self.clrmessages()
+    def back_button_click_handler(self):     
         disconnect()
+        self.disconnectedFlag=True
+        self.clrmessages()
         self.stackedWidget.setCurrentIndex(0)
     
     def clrmessages(self):
@@ -73,6 +86,7 @@ class UI(QtWidgets.QMainWindow, Ui_MainWindow):
         for msg_box in self.recvmsgList:
             self.widget_delete(msg_box.recvmsg_label)
         self.sendmsgList=[]
+        self.recvmsgList=[]
 
     def send_button_click_handler(self):        ###
         msg=self.typemessage_edit.text()
@@ -89,12 +103,20 @@ class UI(QtWidgets.QMainWindow, Ui_MainWindow):
     #     self.typemessage_edit.setText("")
     #     self.display_recvmsg(msg)
 
-    def getmsg(self):                   ##Network dependent function
-        while True:
-            msg=return_msg()
-            if msg=="":
+    def getmsg(self):                 ##Network dependent function
+        while self.disconnectedFlag==False:
+            temp=return_msg()
+            if temp=="" or temp.isspace():
                 continue
-            self.display_recvmsg(msg)
+            self.recvQLock.acquire()
+            self.recvQ.append(temp)
+            self.recvQLock.release()
+            self.signal_recv_msg.emit()
+            print(f"recv in getmsg: {temp}")
+    
+    # def get(self,message):
+    #     self.display_recvmsg(msg)
+
 
     def display_sendmsg(self, msg):
         self.sendmsgList.append(send_msgbox(self.scrollAreaWidgetContents))
@@ -102,11 +124,16 @@ class UI(QtWidgets.QMainWindow, Ui_MainWindow):
         self.gridLayout_10.addWidget(self.sendmsgList[-1].sendmsg_label)
         print(f"send: {msg}")
 
-    def display_recvmsg(self, msg):
-        self.recvmsgList.append(recv_msgbox(self.scrollAreaWidgetContents))
-        self.recvmsgList[-1].recvmsg_label.setText(msg)
-        self.gridLayout_10.addWidget(self.recvmsgList[-1].recvmsg_label)
-        print(f"recv: {msg}")
+    def display_recvmsg(self):
+        #global recvQ
+        while self.recvQ !=[]:
+            self.recvmsgList.append(recv_msgbox(self.scrollAreaWidgetContents))
+            self.recvQLock.acquire()
+            self.recvmsgList[-1].recvmsg_label.setText(self.recvQ[0])
+            self.recvQ.pop(0)
+            self.recvQLock.release()
+            self.gridLayout_10.addWidget(self.recvmsgList[-1].recvmsg_label)
+            print(f"recv: {recvQ}")
 
     ##Network dependent functions
 

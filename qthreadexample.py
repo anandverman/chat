@@ -1,39 +1,31 @@
-from PyQt6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 import threading
 
 class Window(QtWidgets.QMainWindow):
-    signal_start_background_job = QtCore.pyqtSignal()
+    signal_start_background_job = QtCore.Signal()
 
     def __init__(self):
         super(Window, self).__init__()
         self.button = QtWidgets.QPushButton(self)
+        self.flag=True
 
-        self.worker = WorkerObject()
-        # self.thread = QtCore.QThread()
+        # self.worker = WorkerObject()
+        # self.thread = threading.Thread()
         # self.worker.moveToThread(self.thread)
-        self.t1=threading.Thread(target=self.start_background_job)
 
+        self.signal_start_background_job.connect(self.background_job)
 
-        self.signal_start_background_job.connect(lambda:self.worker.background_job(self.button))
-
-        self.button.clicked.connect(self.startthread)
-
-    def startthread(self):
-        self.t1.start()
+        self.button.clicked.connect(self.start_background_job)  
 
     def start_background_job(self):
         # No harm in calling thread.start() after the thread is already started.
-        # self.thread.start()
-        print(threading.current_thread().getName())
-
+        
         self.signal_start_background_job.emit()
         
-class WorkerObject(QtCore.QObject):
-    @QtCore.pyqtSlot()
-    def background_job(self, button):
-        button.setText("Hi")
+# class WorkerObject(QtCore.QObject):
+    
+    def background_job(self):
         print("hello")
-        print(threading.current_thread().getName())
         #Do stuff
         pass
 

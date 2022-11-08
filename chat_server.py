@@ -39,8 +39,9 @@ def communicate(conn, addr):
     conn.send(bytes(f"Welcome to chat!",'utf-8'))
     msg="a"
     while len(msg):
-        if not conn:
-            break
+        # if not conn:
+        #     print("Bye")
+        #     break
         try:
             msg=bytes.decode(conn.recv(2000))
             if(msg):
